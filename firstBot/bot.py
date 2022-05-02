@@ -78,7 +78,7 @@ while True:
                 # refresh buy/sell price to account for resistance
                 SELL_PRICE = price() * 1.003
                 BUY_PRICE = price() * .997
-                extraStallCounter = -1
+                extraStallCounter = 0
                 
             else:
                 print("Insufficient funds...")
@@ -91,7 +91,7 @@ while True:
                 # refresh buy/sell price to account for resistance
                 SELL_PRICE = price() * 1.003
                 BUY_PRICE = price() * .997
-                extraStallCounter = -1
+                extraStallCounter = 0
 
             else:
                 print("Insufficient funds...")
