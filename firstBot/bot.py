@@ -1,7 +1,7 @@
 from tempfile import TemporaryFile
 import cbpro
 import time
-from numpy import double
+import numpy
 from datetime import datetime
 
 data = open('passphrase', 'r').read().splitlines()
@@ -10,7 +10,7 @@ passphrase = data[1]
 secret = data[2]
 authClient = cbpro.AuthenticatedClient(public, secret, passphrase)
 dogeAccountInfo = authClient.get_account('334285d3-d4fb-4de1-aa39-e7fd0c3078b6')
-getBalance = lambda: double(dogeAccountInfo['balance'])
+getBalance = lambda: float(dogeAccountInfo['balance'])
 price = lambda: float(authClient.get_product_ticker(product_id="DOGE-USD")['price'])
 print(f"Balance: {getBalance()} DOGE")
 
