@@ -35,7 +35,8 @@ SELL_AT_PERCENTAGE = 1.008
 newPriceEvery = HOUR
 
 def buyActionHighTrades(BUY_AMOUNT):
-    buyAction = lambda: authClient.place_market_order(size=BUY_AMOUNT, side="buy", product_id="DOGE-USD")
+    buySize = str(round(BUY_AMOUNT, 4))
+    buyAction = lambda: authClient.place_market_order(size=buySize, side="buy", product_id="DOGE-USD")
     try:                                                      # high amount of trades
         print(buyAction())
         print(f"New balance: {getBalance()}")
@@ -44,7 +45,8 @@ def buyActionHighTrades(BUY_AMOUNT):
         return False
 
 def buyActionLowTrades(BUY_AMOUNT):
-    buyAction = lambda: authClient.place_market_order(size=BUY_AMOUNT, side="buy", product_id="DOGE-USD")
+    buySize = str(round(BUY_AMOUNT, 4))
+    buyAction = lambda: authClient.place_market_order(size=buySize, side="buy", product_id="DOGE-USD")
     try:
         print(buyAction())
         print(f"New balance: {getBalance()}")
@@ -53,7 +55,8 @@ def buyActionLowTrades(BUY_AMOUNT):
         return False
 
 def sellActionLowTrades(SELL_AMOUNT):
-    sellAction = lambda: authClient.place_market_order(size=SELL_AMOUNT, side="sell", product_id="DOGE-USD")
+    sellSize = str(round(SELL_AMOUNT, 4))
+    sellAction = lambda: authClient.place_market_order(size=sellSize, side="sell", product_id="DOGE-USD")
     try:                                                      # high amount of trades
         print(sellAction())
         print(f"New balance: {getBalance()}")
