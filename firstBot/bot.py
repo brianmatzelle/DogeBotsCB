@@ -10,9 +10,9 @@ passphrase = data[1]
 secret = data[2]
 authClient = cbpro.AuthenticatedClient(public, secret, passphrase)
 dogeAccountInfo = authClient.get_account('334285d3-d4fb-4de1-aa39-e7fd0c3078b6')
-getBalance = lambda: float(dogeAccountInfo['balance'])
+getDogeBalance = lambda: float(dogeAccountInfo['balance'])
 price = lambda: float(authClient.get_product_ticker(product_id="DOGE-USD")['price'])
-print(f"Balance: {getBalance()} DOGE")
+print(f"Doge balance: {getDogeBalance()} DOGE")
 
 # try to trade every __ seconds
 REFRESH_EVERY = 20
@@ -26,8 +26,9 @@ THIRTY_MIN = 1800
 HOUR = 3600
 
 # amount constants (DOGE-USD) for how much coin to buy/sell
+USD_BALANCE = 9.92
+DOGE_BALANCE = getDogeBalance()
 MINIMUM = 3.8
-getMaxAvail = lambda: getBalance()
 
 # TRADE CONFIGS, ADJUST THESE TO YOUR LIKING
 BUY_AT_PERCENTAGE = .992
@@ -37,62 +38,50 @@ newPriceEvery = HOUR
 def buyActionLowTrades(BUY_AMOUNT):
     buySize = str(round(BUY_AMOUNT, 4))
     buyAction = lambda: authClient.place_market_order(size=buySize, side="buy", product_id="DOGE-USD")
-    try:
-        print(buySize)
-        print(buyAction())
-        print(f"New balance: {getBalance()}")
-        return True
-    except Exception:
-        return False
+    print(buyAction())
+    print(f"New balance: {getDogeBalance()}")
+    return True
 
 def sellActionLowTrades(SELL_AMOUNT):
-    sellSize = str(round(SELL_AMOUNT, 4))
+    sellSize = round(SELL_AMOUNT, 4)
     sellAction = lambda: authClient.place_market_order(size=sellSize, side="sell", product_id="DOGE-USD")
     try:                                                      # high amount of trades
-        print(sellSize)
-        print(sellAction())
-        print(f"New balance: {getBalance()}")
-        return True
+        if sellAction()['message'] == 'Insufficient funds':
+            return False
     except Exception:
-        return False
+        print(f"New balance: {getDogeBalance()}")
+        return True
 
 while True:
     print(f"Time started: {datetime.now()}")
     stallCounter = 0
     timeCounter = 0
     extraStallCounter = 0
-    SELL_PRICE = str(round((price() * SELL_AT_PERCENTAGE), 4))
-    BUY_PRICE = str(round((price() * BUY_AT_PERCENTAGE), 4))
+    SELL_PRICE = round((price() * SELL_AT_PERCENTAGE), 4)
+    BUY_PRICE = round((price() * BUY_AT_PERCENTAGE), 4)
     print("Current price: " + authClient.get_product_ticker(product_id="DOGE-USD")['price'])
     print(f"New buy price: {BUY_PRICE}, new sell price: {SELL_PRICE}")
     # this code refreshes every ___ seconds, refreshing data after time is reached
     while True:
         if price() <= BUY_PRICE:
             print(f"Buying DOGE! Price fell to {price()} ...")
-            if buyActionLowTrades(getBalance() / 2) == True:
-                # refresh buy/sell price to account for resistance
-                SELL_PRICE = price() * 1.003
-                BUY_PRICE = price() * .997
-                extraStallCounter = 0
-                print(f"Stalling {(newPriceEvery / 12) / 60} minutes... ")
-                
-            else:
-                print("Insufficient funds...")
-                break
-
+            buyActionLowTrades((USD_BALANCE) / 2)
+            # refresh buy/sell price to account for resistance
+            SELL_PRICE = price() * 1.003
+            BUY_PRICE = price() * .997
+            extraStallCounter = 0
+            DOGE_BALANCE += (USD_BALANCE / 2) / price()
+            USD_BALANCE = USD_BALANCE / 2
 
         elif price() >= SELL_PRICE:
             print(f"Selling DOGE! Price rose to {price()} ...")
-            if sellActionLowTrades(getBalance() / 2) == True:
-                # refresh buy/sell price to account for resistance
-                SELL_PRICE = price() * 1.003
-                BUY_PRICE = price() * .997
-                extraStallCounter = 0
-                print(f"Stalling {(newPriceEvery / 12) / 60} minutes... ")
-
-            else:
-                print("Insufficient funds...")
-                break
+            sellActionLowTrades(DOGE_BALANCE / 2)
+            # refresh buy/sell price to account for resistance
+            SELL_PRICE = price() * 1.003
+            BUY_PRICE = price() * .997
+            extraStallCounter = 0
+            USD_BALANCE += (DOGE_BALANCE / 2) * price()
+            DOGE_BALANCE = DOGE_BALANCE / 2
 
 
         # refresh
@@ -123,7 +112,7 @@ while True:
             print(f"Stalling {(newPriceEvery / 12) / 60} minutes! 15% away from SELL price... {datetime.now()}")
             
         if timeCounter == newPriceEvery / 2:
-            print(f"{timeCounter / 60} minutes has passed, continuing...")
+            print(f"{(timeCounter + stallCounter) / 60} minutes has passed, continuing...")
         if (timeCounter > newPriceEvery):
             print(f"{(newPriceEvery + stallCounter) / 60} minutes has passed... Stalled time: {stallCounter / 60} minutes")
             break
