@@ -79,6 +79,9 @@ while True:
                 SELL_PRICE = price() * 1.003
                 BUY_PRICE = price() * .997
                 extraStallCounter = 0
+                timeCounter -= newPriceEvery / 12
+                stallCounter += newPriceEvery / 12
+                print(f"Stalling {(newPriceEvery / 12) / 60} minutes... ")
                 
             else:
                 print("Insufficient funds...")
@@ -92,6 +95,9 @@ while True:
                 SELL_PRICE = price() * 1.003
                 BUY_PRICE = price() * .997
                 extraStallCounter = 0
+                timeCounter -= newPriceEvery / 12
+                stallCounter += newPriceEvery / 12
+                print(f"Stalling {(newPriceEvery / 12) / 60} minutes... ")
 
             else:
                 print("Insufficient funds...")
@@ -105,25 +111,25 @@ while True:
             timeCounter -= newPriceEvery / 12                           # give extra 5 min if 10% away from buy price
             stallCounter += newPriceEvery / 12
             extraStallCounter += 1
-            print(f"Stalling! 10% away from BUY price...")
+            print(f"Stalling {(newPriceEvery / 12) / 60} minutes! 10% away from BUY price...")
 
         elif ((price() - BUY_PRICE) / price()) * 100 <= .15 and extraStallCounter < 2:            # give extra 10 min if 15% away from buy price
             timeCounter -= newPriceEvery / 12
             stallCounter += newPriceEvery / 12
             extraStallCounter += 1
-            print(f"Stalling! 15% away from BUY price...")
+            print(f"Stalling {(newPriceEvery / 12) / 60} minutes! 15% away from BUY price...")
 
         elif ((SELL_PRICE - price()) / price()) * 100 <= .10 and extraStallCounter < 3:
             timeCounter -= newPriceEvery / 12
             stallCounter += newPriceEvery / 12
             extraStallCounter += 1
-            print(f"Stalling! 10% away from SELL price...")
+            print(f"Stalling {(newPriceEvery / 12) / 60} minutes! 10% away from SELL price...")
 
         elif ((SELL_PRICE - price()) / price()) * 100 <= .15 and extraStallCounter < 2:
             timeCounter -= newPriceEvery / 12
             stallCounter += newPriceEvery / 12
             extraStallCounter += 1
-            print(f"Stalling! 15% away from SELL price...")
+            print(f"Stalling {(newPriceEvery / 12) / 60} minutes! 15% away from SELL price...")
             
         if timeCounter == newPriceEvery / 2:
             print(f"{timeCounter / 60} minutes has passed, continuing...")
