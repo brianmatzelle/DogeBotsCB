@@ -31,26 +31,17 @@ DOGE_BALANCE = getDogeBalance()
 MINIMUM = 3.8
 
 # TRADE CONFIGS, ADJUST THESE TO YOUR LIKING
-BUY_AT_PERCENTAGE = .992
-SELL_AT_PERCENTAGE = 1.008
+BUY_AT_PERCENTAGE = .993
+SELL_AT_PERCENTAGE = 1.007
 newPriceEvery = HOUR
 
 def buyActionLowTrades(BUY_AMOUNT):
     buySize = str(round(BUY_AMOUNT, 4))
-    buyAction = lambda: authClient.place_market_order(size=buySize, side="buy", product_id="DOGE-USD")
-    print(buyAction())
-    print(f"New balance: {getDogeBalance()}")
-    return True
+    print(authClient.place_market_order(size=buySize, side="buy", product_id="DOGE-USD"))
 
 def sellActionLowTrades(SELL_AMOUNT):
     sellSize = round(SELL_AMOUNT, 4)
-    sellAction = lambda: authClient.place_market_order(size=sellSize, side="sell", product_id="DOGE-USD")
-    try:                                                      # high amount of trades
-        if sellAction()['message'] == 'Insufficient funds':
-            return False
-    except Exception:
-        print(f"New balance: {getDogeBalance()}")
-        return True
+    print(authClient.place_market_order(size=sellSize, side="sell", product_id="DOGE-USD"))
 
 while True:
     print(f"Time started: {datetime.now()}")
@@ -72,6 +63,7 @@ while True:
             extraStallCounter = 0
             DOGE_BALANCE += (USD_BALANCE / 2) / price()
             USD_BALANCE = USD_BALANCE / 2
+            print(f"BALANCES:\nUSD: {USD_BALANCE}\nDOGE: {DOGE_BALANCE}")
 
         elif price() >= SELL_PRICE:
             print(f"Selling DOGE! Price rose to {price()} ...")
@@ -82,12 +74,13 @@ while True:
             extraStallCounter = 0
             USD_BALANCE += (DOGE_BALANCE / 2) * price()
             DOGE_BALANCE = DOGE_BALANCE / 2
+            print(f"BALANCES:\nUSD: {USD_BALANCE}\nDOGE: {DOGE_BALANCE}")
 
 
         # refresh
         time.sleep(REFRESH_EVERY)
         timeCounter += REFRESH_EVERY
-        if ((price() - BUY_PRICE) / price()) * 100 <= .10 and extraStallCounter < 2:
+        if ((price() - BUY_PRICE) / price()) * 100 <= .10 and extraStallCounter < 3:
             timeCounter -= newPriceEvery / 12                           # give extra 5 min if 10% away from buy price
             stallCounter += newPriceEvery / 12
             extraStallCounter += 1
@@ -99,7 +92,7 @@ while True:
             extraStallCounter += 1
             print(f"Stalling {(newPriceEvery / 12) / 60} minutes! 15% away from BUY price... {datetime.now()}")
 
-        elif ((SELL_PRICE - price()) / price()) * 100 <= .10 and extraStallCounter < 2:
+        elif ((SELL_PRICE - price()) / price()) * 100 <= .10 and extraStallCounter < 3:
             timeCounter -= newPriceEvery / 12
             stallCounter += newPriceEvery / 12
             extraStallCounter += 1
