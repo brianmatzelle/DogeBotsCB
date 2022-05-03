@@ -12,7 +12,6 @@ authClient = cbpro.AuthenticatedClient(public, secret, passphrase)
 dogeAccountInfo = authClient.get_account('334285d3-d4fb-4de1-aa39-e7fd0c3078b6')
 getDogeBalance = lambda: float(dogeAccountInfo['balance'])
 
-print(f"Doge balance: {getDogeBalance()} DOGE")
 
 # try to trade every __ seconds
 REFRESH_EVERY = 20
@@ -26,13 +25,17 @@ THIRTY_MIN = 1800
 HOUR = 3600
 
 # amount constants (DOGE-USD) for how much coin to buy/sell
-USD_BALANCE = 9.92
+USD_BALANCE = 16.23
 DOGE_BALANCE = getDogeBalance()
 MINIMUM = 3.8
+price = float(authClient.get_product_ticker(product_id="DOGE-USD")['price'])
+print(f"Doge balance: {getDogeBalance()} DOGE")
+print(f"USD balance: {USD_BALANCE}")
+print(f"Total portfolio: {round((DOGE_BALANCE * price), 2) + USD_BALANCE}")
 
 # TRADE CONFIGS, ADJUST THESE TO YOUR LIKING
-BUY_AT_PERCENTAGE = .995
-SELL_AT_PERCENTAGE = 1.005
+BUY_AT_PERCENTAGE = .991
+SELL_AT_PERCENTAGE = 1.009
 newPriceEvery = HOUR
 
 buyPercent = lambda: round(((1 - BUY_AT_PERCENTAGE) * 100), 4)
@@ -53,8 +56,8 @@ while True:
     timeCounter = 0
     extraStallCounter = 0
     price = float(authClient.get_product_ticker(product_id="DOGE-USD")['price'])
-    SELL_PRICE = round((price * SELL_AT_PERCENTAGE), 1)
-    BUY_PRICE = round((price * BUY_AT_PERCENTAGE), 1)
+    SELL_PRICE = round((price * SELL_AT_PERCENTAGE), 4)
+    BUY_PRICE = round((price * BUY_AT_PERCENTAGE), 4)
     print(f"Current price: {price}")
     print(f"New buy price: {BUY_PRICE}, new sell price: {SELL_PRICE}")
     # this code refreshes every ___ seconds, refreshing data after time is reached
